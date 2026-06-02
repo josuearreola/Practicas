@@ -14,11 +14,11 @@ class DetailScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: const [
-                Text('Lun\n24°C\n '),
-                Text('Mar\n26°C\n '),
-                Text('Mié\n20°C\n '),
-                Text('Jue\n25°C\n '),
-                Text('Vie\n28°C\n '),
+                Text('Lun\n24°C\n ☀️'),
+                Text('Mar\n26°C\n ☁️'),
+                Text('Mié\n20°C\n ☀️'),
+                Text('Jue\n25°C\n 🌦️'),
+                Text('Vie\n28°C\n ☁️'),
               ],
             ),
             const SizedBox(height: 40),
