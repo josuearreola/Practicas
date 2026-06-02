@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,42 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mi primera app',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: const MyHomePage(),
-    );
-  } 
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Clima Actual'), centerTitle: true),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              '25°C',
-              style: TextStyle(
-                fontSize: 96,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Querétaro',
-              style: TextStyle(fontSize: 24, color: Colors.grey),
-            ),
-            SizedBox(height: 32),
-            Icon(Icons.sunny, size: 120, color: Colors.blue),
-          ],
-        ),
+      debugShowCheckedModeBanner: false,
+      title: 'Climate App',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
       ),
+      home: const HomeScreen(),
     );
   }
 }
