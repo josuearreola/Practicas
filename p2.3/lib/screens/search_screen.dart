@@ -44,10 +44,10 @@ class _SearchScreenState extends State<SearchScreen> {
               decoration: const InputDecoration(
                 hintText: 'Busca una ciudad...',
                 border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
           ),
-
           Expanded(
             child: filteredCities.isEmpty
                 ? const Center(child: Text('No encontradas'))
@@ -59,14 +59,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       return ListTile(
                         title: Text(city),
                         subtitle: const Text('24°C'),
-
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailScreen(city: city),
-                            ),
-                          );
+                          Navigator.pop(context, city);
                         },
                       );
                     },

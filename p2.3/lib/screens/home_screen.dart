@@ -107,8 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: const Text('Buscar Ciudades'),
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
                           children: [
                             ElevatedButton(
                               onPressed: () {
@@ -118,14 +120,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               child: const Text('Temp +1'),
                             ),
-                            const SizedBox(width: 8),
                             ElevatedButton(
                               onPressed: () {
                                 weatherProvider.changeCity('Barcelona');
                               },
                               child: const Text('Cambiar a Barcelona'),
                             ),
-                            const SizedBox(width: 8),
                             ElevatedButton(
                               onPressed: () {
                                 weatherProvider.toggleTemperatureUnit();
