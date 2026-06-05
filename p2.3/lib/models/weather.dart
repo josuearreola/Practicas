@@ -1,33 +1,62 @@
-// Esta clase es como un contenedor de información del clima
-// Guarda todos los datos que necesitamos: ciudad, temperatura, condición, unidad
 class Weather {
-  final String city;      // Nombre de la ciudad
-  final double temp;      // Temperatura en números
-  final String condition; // Si está soleado, nublado, lluvia, etc
-  final String unit;      // Si es Celsius (°C) o Fahrenheit (°F)
+  final String city;
+  final int temperature;
+  final String condition;
+  final int humidity;
 
-  // Constructor: para crear un objeto Weather con información
   Weather({
     required this.city,
-    required this.temp,
+    required this.temperature,
     required this.condition,
-    required this.unit,
+    required this.humidity,
   });
 
-  // copyWith: hace una copia del objeto pero cambia solo lo que le pidas
-  // Por ejemplo, si quiero cambiar la ciudad pero mantener la temperatura igual
-  // En lugar de crear uno nuevo, usamos copyWith para no perder los otros datos
+  // Crear una copia con algunos campos modificados
   Weather copyWith({
     String? city,
-    double? temp,
+    int? temperature,
     String? condition,
-    String? unit,
+    int? humidity,
   }) {
     return Weather(
-      city: city ?? this.city,           // Usa el nuevo valor o mantiene el anterior
-      temp: temp ?? this.temp,
+      city: city ?? this.city,
+      temperature: temperature ?? this.temperature,
       condition: condition ?? this.condition,
-      unit: unit ?? this.unit,
+      humidity: humidity ?? this.humidity,
     );
+  }
+
+  // Convertir JSON a Weather
+  factory Weather.fromJson(Map<String, dynamic> json) {
+    if (!json.containsKey('main')) {
+      throw FormatException('Missing main field in weather data');
+    }
+
+    final temp = json['main']['temp'];
+    if (temp is! num) {
+      throw FormatException('Temperature must be number');
+    }
+
+    return Weather(
+      city: json['name'] ?? 'Unknown',
+      temperature: temp.toInt(),
+      condition: (json['weather'] as List?)?.isNotEmpty == true
+          ? json['weather'][0]['main'] ?? 'unknown'
+          : 'unknown',
+      humidity: json['main']['humidity'] ?? 0,
+    );
+  }
+
+  // Convertir Weather a JSON
+  Map<String, dynamic> toJson() => {
+    'city': city,
+    'temperature': temperature,
+    'condition': condition,
+    'humidity': humidity,
+  };
+
+  @override
+  String toString() {
+    return 'Weather(city: $city, temp: $temperature°C, condition: $condition, humidity: $humidity%)';
   }
 }

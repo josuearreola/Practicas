@@ -1,46 +1,102 @@
 import 'package:flutter/material.dart';
 import '../models/weather.dart';
 
-// Este es el "gerente" de la información del clima
-// Aquí se guarda la información y se controla cómo cambia
-// Cuando algo cambia, notifica a todos los widgets que lo están observando
 class WeatherProvider extends ChangeNotifier {
-  
-  // Almacenamos los datos del clima (temperatura inicial, ciudad, etc)
-  Weather _weather = Weather(
-    city: 'Madrid',
-    temp: 22.5,
-    condition: 'Soleado',
-    unit: '°C',
-  );
+  Weather? _weather;
+  bool _isLoading = false;
+  String? _errorMessage;
+  int _tempUnit = 0; // 0 = Celsius, 1 = Fahrenheit
 
-  // Permite que otros archivos lean los datos del clima
-  // (pero no puedan cambiarlos directamente)
-  Weather get weather => _weather;
+  // Getters
+  Weather? get weather => _weather;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  String get temperatureUnit => _tempUnit == 0 ? '°C' : '°F';
 
-  // Cuando cambias la ciudad:
-  // 1. Actualiza el dato
-  // 2. Avisa a todos los widgets para que se redibjen
+  // Cargar datos (simulado)
+  Future<void> loadWeather(String city) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      // Simula delay de red
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Datos hardcodeados (en P2.5 será API real)
+      _weather = Weather(
+        city: city,
+        temperature: 24,
+        condition: 'cloudy',
+        humidity: 65,
+      );
+    } catch (e) {
+      _errorMessage = 'Error loading weather: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Cambiar unidad de temperatura
+  void toggleTemperatureUnit() {
+    if (_weather != null) {
+      int newTemp;
+      if (_tempUnit == 0) {
+        // Pasar de Celsius a Fahrenheit
+        newTemp = ((_weather!.temperature * 9 / 5) + 32).toInt();
+      } else {
+        // Pasar de Fahrenheit a Celsius
+        newTemp = ((_weather!.temperature - 32) * 5 / 9).toInt();
+      }
+      
+      _tempUnit = _tempUnit == 0 ? 1 : 0;
+      _weather = Weather(
+        city: _weather!.city,
+        temperature: newTemp,
+        condition: _weather!.condition,
+        humidity: _weather!.humidity,
+      );
+      notifyListeners();
+    }
+  }
+
+  // Actualizar temperatura manualmente
+  void changeTemperature(int newTemp) {
+    if (_weather != null) {
+      _weather = Weather(
+        city: _weather!.city,
+        temperature: newTemp,
+        condition: _weather!.condition,
+        humidity: _weather!.humidity,
+      );
+      notifyListeners();
+    }
+  }
+
+  // Cambiar ciudad
   void changeCity(String newCity) {
-    _weather = _weather.copyWith(city: newCity);
-    notifyListeners(); // "Oye, algo cambió, actualiza lo que estás mostrando"
+    if (_weather != null) {
+      _weather = Weather(
+        city: newCity,
+        temperature: _weather!.temperature,
+        condition: _weather!.condition,
+        humidity: _weather!.humidity,
+      );
+      notifyListeners();
+    }
   }
 
-  // Mismo proceso pero para la temperatura
-  void changeTemperature(double newTemp) {
-    _weather = _weather.copyWith(temp: newTemp);
-    notifyListeners();
-  }
-
-  // Mismo proceso pero para la condición (soleado, nublado, etc)
+  // Cambiar condición
   void changeCondition(String newCondition) {
-    _weather = _weather.copyWith(condition: newCondition);
-    notifyListeners();
-  }
-
-  // Mismo proceso pero para la unidad (Celsius o Fahrenheit)
-  void changeUnit(String newUnit) {
-    _weather = _weather.copyWith(unit: newUnit);
-    notifyListeners();
+    if (_weather != null) {
+      _weather = Weather(
+        city: _weather!.city,
+        temperature: _weather!.temperature,
+        condition: newCondition,
+        humidity: _weather!.humidity,
+      );
+      notifyListeners();
+    }
   }
 }

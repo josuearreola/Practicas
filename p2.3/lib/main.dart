@@ -8,26 +8,17 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // MultiProvider: esto es como un "distribuidor" de información
-    // Toma el WeatherProvider y lo pone disponible en toda la aplicación
-    // Todos los pantallas pueden acceder a los datos del clima desde aquí
     return MultiProvider(
       providers: [
-        // Registramos el WeatherProvider para que esté disponible globalmente
-        // Esto significa que cualquier widget puede usarlo sin importar dónde esté
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
         title: 'Climate App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorSchemeSeed: Colors.blue,
-        ),
+        theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
         home: const HomeScreen(),
       ),
     );

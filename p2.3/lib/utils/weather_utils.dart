@@ -1,28 +1,41 @@
 import 'package:flutter/material.dart';
 
-// Esta función toma un número de temperatura y lo prepara para mostrar en pantalla
-// Por ejemplo: 22.567 se convierte en "22.6°C"
-// Solo tiene 1 decimal para que se vea más limpio
-String formatTemperature(double temp, String unit) {
-  return '${temp.toStringAsFixed(1)}$unit';
+// Convierte Celsius a Fahrenheit
+double celsiusToFahrenheit(int celsius) {
+  return (celsius * 9 / 5) + 32;
 }
 
-// Esta función toma una descripción del clima (texto) y devuelve un ícono
-// Por ejemplo: si dice "Soleado", devuelve un ícono de sol
-// Es útil para mostrar visualmente qué tiempo hace sin escribir texto
+// Convierte Fahrenheit a Celsius
+int fahrenheitToCelsius(double fahrenheit) {
+  return ((fahrenheit - 32) * 5 / 9).toInt();
+}
+
+// Obtiene ícono según condición
 IconData getWeatherIcon(String condition) {
   switch (condition.toLowerCase()) {
-    case 'soleado':
-      return Icons.wb_sunny;      // Ícono de sol
-    case 'nublado':
-      return Icons.cloud;          // Ícono de nube
-    case 'lluvia':
-      return Icons.cloud_queue;    // Ícono de lluvia
-    case 'tormenta':
-      return Icons.flash_on;       // Ícono de rayo
-    case 'nieve':
-      return Icons.ac_unit;        // Ícono de nieve
+    case 'sunny':
+    case 'clear':
+      return Icons.wb_sunny;
+    case 'cloudy':
+    case 'clouds':
+      return Icons.wb_cloudy;
+    case 'rainy':
+    case 'rain':
+      return Icons.grain;
+    case 'snowy':
+    case 'snow':
+      return Icons.ac_unit;
     default:
-      return Icons.cloud_circle;   // Si no reconoce, mostrar nube genérica
+      return Icons.cloud;
   }
+}
+
+// Formatea la temperatura con su unidad
+String formatTemperature(int temperature, String unit) {
+  return '$temperature$unit';
+}
+
+// Valida temperatura (está en rango válido)
+bool isValidTemperature(int temp) {
+  return temp >= -50 && temp <= 50;
 }
