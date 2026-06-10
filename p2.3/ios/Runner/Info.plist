@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Esta app usa Bluetooth para conectar con wearables BLE.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Esta app usa Bluetooth para conectar con wearables BLE.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

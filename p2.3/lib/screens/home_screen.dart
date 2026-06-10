@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/weather_provider.dart';
 import '../utils/weather_utils.dart';
+import 'ble_scan_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -107,6 +108,32 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: const Text('Buscar Ciudades'),
                         ),
                         const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const BLEScanScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text('Buscar dispositivos BLE'),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          weatherProvider.bleStatus,
+                          style: TextStyle(
+                            color: weatherProvider.bleConnected
+                                ? Colors.green
+                                : Colors.grey,
+                          ),
+                        ),
+                        if (weatherProvider.bleLoading)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: CircularProgressIndicator(),
+                          ),
+                        const SizedBox(height: 16),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
@@ -208,6 +235,31 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                           child: const Text('Buscar Ciudades'),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const BLEScanScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text('Buscar dispositivos BLE'),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        weatherProvider.bleStatus,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: weatherProvider.bleConnected
+                              ? Colors.green
+                              : Colors.grey,
                         ),
                       ),
                       const SizedBox(height: 8),
