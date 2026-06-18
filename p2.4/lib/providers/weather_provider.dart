@@ -1,8 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
 import '../models/weather.dart';
 import '../services/ble_service.dart';
 
@@ -30,7 +28,6 @@ class WeatherProvider extends ChangeNotifier {
   String get bleStatus => _bleStatus;
   List<int> get bleValue => _bleValue;
 
-  // Cargar datos (simulado)
   Future<void> loadWeather(String city) async {
     _isLoading = true;
     _errorMessage = null;
@@ -38,7 +35,6 @@ class WeatherProvider extends ChangeNotifier {
 
     try {
       await Future.delayed(const Duration(seconds: 1));
-
       _weather = Weather(
         city: city,
         temperature: 24,
@@ -63,16 +59,12 @@ class WeatherProvider extends ChangeNotifier {
       }
 
       _tempUnit = _tempUnit == 0 ? 1 : 0;
-      _weather = Weather(
-        city: _weather!.city,
-        temperature: newTemp,
-        condition: _weather!.condition,
-        humidity: _weather!.humidity,
-      );
+      _weather = _weather!.copyWith(temperature: newTemp);
       notifyListeners();
     }
   }
 
+  // Método que llama la pantalla ble_scan_screen al presionar sobre tu Dispositivo 2
   Future<void> readWearableData(String deviceId) async {
     _lastDeviceId = deviceId;
     _isLoading = true;
@@ -83,8 +75,13 @@ class WeatherProvider extends ChangeNotifier {
 
     try {
       await _bleService.connect(deviceId);
+      
+      // Llama al servicio modificado con mapeo corto de UUIDs
       final bytes = await _bleService.readCharacteristic();
+      
+      // Procesa y aplica las validaciones requeridas
       _applyWearableData(bytes);
+      
       _bleConnected = true;
       _bleStatus = 'Conectado BLE';
       _listenForDisconnection();
@@ -99,16 +96,31 @@ class WeatherProvider extends ChangeNotifier {
     }
   }
 
+  // Procesa el Hexadecimal / Bytes entrante de forma segura
   void _applyWearableData(List<int> bytes) {
     _bleValue = bytes;
-    final temperature =
-        bytes.isNotEmpty ? bytes.first : _weather?.temperature ?? 0;
+    
+    // Por defecto toma la temperatura actual si viene vacío
+    int targetTemperature = _weather?.temperature ?? 0;
+
+    if (bytes.isNotEmpty) {
+      // LightBlue manda los bytes de tu valor Hexadecimal. El primer byte es bytes.first
+      int parsedValue = bytes.first;
+
+      // Criterio de seguridad obligatorio: Validar rango estricto (-60 a 60)
+      if (parsedValue >= -60 && parsedValue <= 60) {
+        targetTemperature = parsedValue;
+      } else {
+        _errorMessage = "Seguridad BLE: Datos fuera de rango (-60 a 60).";
+        print("Dato descartado: $parsedValue");
+      }
+    }
 
     _weather = Weather(
       city: _weather?.city ?? 'Wearable',
-      temperature: temperature,
-      condition: _weather?.condition ?? 'connected',
-      humidity: _weather?.humidity ?? 0,
+      temperature: targetTemperature,
+      condition: 'sunny', // Forzar a 'sunny' o mantener _weather?.condition
+      humidity: _weather?.humidity ?? 50,
     );
   }
 
@@ -162,36 +174,21 @@ class WeatherProvider extends ChangeNotifier {
 
   void changeTemperature(int newTemp) {
     if (_weather != null) {
-      _weather = Weather(
-        city: _weather!.city,
-        temperature: newTemp,
-        condition: _weather!.condition,
-        humidity: _weather!.humidity,
-      );
+      _weather = _weather!.copyWith(temperature: newTemp);
       notifyListeners();
     }
   }
 
   void changeCity(String newCity) {
     if (_weather != null) {
-      _weather = Weather(
-        city: newCity,
-        temperature: _weather!.temperature,
-        condition: _weather!.condition,
-        humidity: _weather!.humidity,
-      );
+      _weather = _weather!.copyWith(city: newCity);
       notifyListeners();
     }
   }
 
   void changeCondition(String newCondition) {
     if (_weather != null) {
-      _weather = Weather(
-        city: _weather!.city,
-        temperature: _weather!.temperature,
-        condition: newCondition,
-        humidity: _weather!.humidity,
-      );
+      _weather = _weather!.copyWith(condition: newCondition);
       notifyListeners();
     }
   }

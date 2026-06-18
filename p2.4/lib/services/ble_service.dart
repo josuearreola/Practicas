@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BLEService {
-  static final Guid targetCharacteristicUuid =
-      Guid('0000ffe1-0000-1000-8000-00805f9b34fb');
+  // Las 2 variables cortas requeridas basadas en tus capturas
+  static const String serviceUuid = "0x1809";
+  static const String temperatureCharacteristicUuid = "0x2222";
 
   BluetoothDevice? _connectedDevice;
 
@@ -19,19 +19,30 @@ class BLEService {
           controller.add(result);
         }
       },
-      onError: controller.addError,
+      onError: (error) {
+        if (!controller.isClosed) controller.addError(error);
+      },
     );
 
     FlutterBluePlus.cancelWhenScanComplete(subscription);
 
-    FlutterBluePlus.startScan(
-      timeout: timeout,
-      oneByOne: true,
-    ).whenComplete(() {
+    // Try-Catch para evitar el PlatformException si el Bluetooth está apagado
+    try {
+      FlutterBluePlus.startScan(
+        timeout: timeout,
+        oneByOne: true,
+      ).whenComplete(() {
+        if (!controller.isClosed) {
+          controller.close();
+        }
+      });
+    } catch (e) {
+      print("Error al iniciar escaneo (Bluetooth apagado): $e");
       if (!controller.isClosed) {
+        controller.addError("Asegúrate de encender el Bluetooth y la Ubicación.");
         controller.close();
       }
-    });
+    }
 
     return controller.stream;
   }
@@ -49,21 +60,33 @@ class BLEService {
     );
   }
 
-  Future<List<int>> readCharacteristic({Guid? uuid}) async {
+  // Descubre servicios y lee la característica usando los UUIDs cortos sin "0x"
+  Future<List<int>> readCharacteristic() async {
     if (_connectedDevice == null) {
       throw Exception('No hay dispositivo conectado');
     }
 
+    // Forzar el descubrimiento de servicios GATT
     final services = await _connectedDevice!.discoverServices();
-    final characteristicUuid = uuid ?? targetCharacteristicUuid;
-    final characteristic = services
-        .expand((service) => service.characteristics)
-        .firstWhere(
-          (characteristic) => characteristic.uuid == characteristicUuid,
-          orElse: () => throw Exception('Caracteristica BLE no encontrada'),
-        );
+    
+    // Limpiar el prefijo "0x" para buscar coincidencia parcial en el UUID largo de Android/iOS
+    final targetService = serviceUuid.replaceAll("0x", "").toLowerCase();
+    final targetChar = temperatureCharacteristicUuid.replaceAll("0x", "").toLowerCase();
 
-    return characteristic.read();
+    // 1. Buscar el servicio correspondiente (0x1809)
+    final service = services.firstWhere(
+      (s) => s.uuid.toString().toLowerCase().contains(targetService),
+      orElse: () => throw Exception('Servicio de Salud (0x1809) no encontrado en el dispositivo'),
+    );
+
+    // 2. Buscar la característica correspondiente (0x2222)
+    final characteristic = service.characteristics.firstWhere(
+      (c) => c.uuid.toString().toLowerCase().contains(targetChar),
+      orElse: () => throw Exception('Característica de temperatura (0x2222) no encontrada'),
+    );
+
+    // Leer el valor del Hexadecimal convertido a bytes
+    return await characteristic.read();
   }
 
   Future<void> disconnect() async {
